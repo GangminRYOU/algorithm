@@ -1,101 +1,86 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-
-void revPrint(char* szBuffer)
+void new_atoi(char** pLongBuf, char** pShortBuf)
 {
-	if(*szBuffer == '\0')
-		return;
-	revPrint(szBuffer + 1);
-	putchar(*szBuffer);
+	while (!(**pLongBuf >= '0' && **pLongBuf <= '9') || **pLongBuf == '0')
+		(*pLongBuf)++;
+	while (!(**pShortBuf >= '0' && **pShortBuf <= '9') || **pShortBuf == '0')
+		(*pShortBuf)++;
+}
+
+void PrintReverse(char* resBuf)
+{
+	int i = strlen(resBuf);
+	while (i >= 0)
+	{
+		putchar(resBuf[i]);
+		i--;
+	}
 }
 
 
 int main(void)
 {
-	char	aBuffer[20000] = { 0 };
-	char	bBuffer[20000] = { 0 };
-	char	resultArr[20000] = { 0 };
-	char*	aBufOp = aBuffer;
-	char*	bBufOp = bBuffer;
-	int		RoundUp = 0, i = 0, aLength = 0, bLength = 0;
-	int aValue = 0, bValue = 0;
-	scanf_s("%s", aBuffer, sizeof(aBuffer));
-	scanf_s("%s", bBuffer, sizeof(bBuffer));
-	//Move pointer to the end of char array
-	while (*aBufOp != '\0')
-		aBufOp++;
-	aLength = aBufOp - aBuffer;
-	aBufOp--;
-	while (*bBufOp != '\0')
-		bBufOp++;
-	bLength = bBufOp - bBuffer;
-	bBufOp--;
-	//calculate from the end until if one pointer meet the front
-	while (aBufOp >= aBuffer && bBufOp >= bBuffer)
+	char*	LongBuf = (char*)malloc(sizeof(char) * 10001);
+	char*	ShortBuf = (char*)malloc(sizeof(char) * 10001);
+	char*	resBuf = (char*)malloc(sizeof(char) * 10002);
+	char*	pTmp = NULL;
+	int		Round = 0, i = 0, j = 0, k = 0, nLong = 0, nShort = 0;
+
+	scanf_s("%s", LongBuf, _msize(LongBuf));
+	scanf_s("%s", ShortBuf, _msize(ShortBuf));
+	memset(resBuf, 0, _msize(resBuf));
+
+	new_atoi(&LongBuf, &ShortBuf);
+	if (strlen(LongBuf) < strlen(ShortBuf))
 	{
-		aValue = *aBufOp - '0';
-		bValue = *bBufOp - '0';
-		if (aValue + bValue + RoundUp > 9)
+		pTmp = LongBuf;
+		LongBuf = ShortBuf;
+		ShortBuf = pTmp;
+	}
+	i = strlen(LongBuf);
+	j = strlen(ShortBuf);
+	i--;
+	j--;
+	while (i >= 0 && j >= 0)
+	{
+		nLong = LongBuf[i] - '0';
+		nShort = ShortBuf[j] - '0';
+		if (nLong + nShort + Round > 9)
 		{
-			resultArr[i] = (aValue + bValue + RoundUp - 10) + '0';
-			RoundUp = 1;
+			resBuf[k] = (nLong + nShort + Round - 10) + '0';
+			Round = 1;
 		}
 		else
 		{
-			resultArr[i] = aValue + bValue + RoundUp + '0';
-			RoundUp = 0;
+			resBuf[k] = nLong + nShort + Round + '0';
+			Round = 0;
 		}
-		--aBufOp;
-		--bBufOp;
-		++i;
+		i--;
+		j--;
+		k++;
 	}
-	//if read all digits
-	if (aLength == bLength)
+	if (i == j && Round == 1)
+		resBuf[k] = '1';
+	while (i >= 0)
 	{
-		if (RoundUp == 1)
-			resultArr[i] = '1';
-	}
-	//if digits left in aBuffer
-	else if (aLength > bLength)
-	{
-		while (aBufOp >= aBuffer)
+		nLong = LongBuf[i] - '0';
+		if (nLong + Round > 9)
 		{
-			aValue = *aBufOp - '0';
-			if (aValue + RoundUp > 9)
-			{
-				resultArr[i] = (aValue + RoundUp - 10) + '0';
-				RoundUp = 1;
-			}
-			else
-			{
-				resultArr[i] = aValue + RoundUp + '0';
-				RoundUp = 0;
-			}
-			aBufOp--;
-			i++;
+			resBuf[k] = (nLong + Round - 10) + '0';
+			Round = 1;
 		}
-	}
-	//if digits left in bBuffer
-	else
-	{
-		while (bBufOp >= bBuffer)
+		else
 		{
-			bValue = *bBufOp - '0';
-			if (bValue + RoundUp > 9)
-			{
-				resultArr[i] = (bValue + RoundUp - 10) + '0';
-				RoundUp = 1;
-			}
-			else
-			{
-				resultArr[i] = bValue + RoundUp + '0';
-				RoundUp = 0;
-			}
-			bBufOp--;
-			i++;
+			resBuf[k] = nLong + Round + '0';
+			Round = 0;
 		}
+		i--;
+		k++;
+	}
+	PrintReverse(resBuf);
 
-	}
-	revPrint(resultArr);
 	return (0);
 }
